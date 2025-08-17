@@ -1,35 +1,59 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import axios from 'axios';
 
-function App() {
-  const [count, setCount] = useState(0)
+import { useState } from "react";
+import { useEffect } from "react";
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+function App(){
+  const [users,setUsers] = useState([]);
+  const [form,setform] = useState({name:"",email:""});
+  
+  useEffect(()=>{
+    axios.get("http://localhost:5000/users")
+    .then(response =>setUsers(response.data))
+    .catch(err => console.log(err));
+  },[]);
+
+  const handleSubmit = (e) =>{
+    e.preventDefault();
+    axios.post("http://localhost:5000/users",form)
+    .then(res => setUsers([...users,res.data]))
+    .catch(err => console.log(err));
+  }
+
+  return(
+    <div style={{padding:"20px"}}>
+      <h1>React + Express + MongoDb</h1>
+      <form onSubmit={handleSubmit}>
+        <input type="text" 
+        placeholder="Name"
+        value={form.name}
+        onChange={e =>setform({...form,name:e.target.value})}
+        />
+
+        <input type="email"
+        placeholder="Email"
+        value={form.email}
+        onChange={e => setform({...form,email:e.target.value})}
+        />
+        <button type="submit">Click Here</button>
+        </form>
+        <h2>
+          Users:
+        </h2>
+        <ul>
+          {
+            users.map((u,i)=>(
+              <li key={i}>
+                <h2>{u.name}</h2>
+                <h5>{u.email}</h5>
+              </li>
+            ))
+          }
+        </ul>
+    </div>
   )
 }
 
-export default App
+
+export default App;
